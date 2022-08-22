@@ -25,10 +25,18 @@ describe("minter", function () {
   let owner;
   let minter;
   let ve_dist;
+  let pair = {address: '0x04068da6c83afcfa0e13ba15a6696662335d5b75'};
+  let factory = {address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'};
+  let router = {address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83'};
 
-  it("deploy base", async function () {
+  it("deploy pairs", async function () {
     [owner] = await ethers.getSigners(1);
     token = await ethers.getContractFactory("Token");
+    pair = await token.deploy('pair', 'pair', 18, owner.address);
+  });
+
+  it("deploy base", async function () {
+  
     basev1 = await ethers.getContractFactory("BaseV1");
     mim = await token.deploy('MIM', 'MIM', 18, owner.address);
     await mim.mint(owner.address, ethers.BigNumber.from("1000000000000000000000000000000"));
@@ -36,12 +44,12 @@ describe("minter", function () {
     vecontract = await ethers.getContractFactory("contracts/ve.sol:ve");
     ve = await vecontract.deploy(ve_underlying.address);
     await ve_underlying.mint(owner.address, ethers.BigNumber.from("10000000000000000000000000"));
-    const BaseV1Factory = await ethers.getContractFactory("BaseV1Factory");
-    factory = await BaseV1Factory.deploy();
-    await factory.deployed();
-    const BaseV1Router = await ethers.getContractFactory("BaseV1Router01");
-    router = await BaseV1Router.deploy(factory.address, owner.address);
-    await router.deployed();
+    // const BaseV1Factory = await ethers.getContractFactory("BaseV1Factory");
+    // factory = await BaseV1Factory.deploy();
+    // await factory.deployed();
+    // const BaseV1Router = await ethers.getContractFactory("BaseV1Router01");
+    // router = await BaseV1Router.deploy(factory.address, owner.address);
+    // await router.deployed();
     const BaseV1GaugeFactory = await ethers.getContractFactory("BaseV1GaugeFactory");
     gauges_factory = await BaseV1GaugeFactory.deploy();
     await gauges_factory.deployed();
@@ -70,16 +78,16 @@ describe("minter", function () {
     const ve_underlying_1 = ethers.BigNumber.from("1000000000000000000");
     await ve_underlying.approve(router.address, ve_underlying_1);
     await mim.approve(router.address, mim_1);
-    await router.addLiquidity(mim.address, ve_underlying.address, false, mim_1, ve_underlying_1, 0, 0, owner.address, Date.now());
+    // await router.addLiquidity(mim.address, ve_underlying.address, false, mim_1, ve_underlying_1, 0, 0, owner.address, Date.now());
 
-    const pair = await router.pairFor(mim.address, ve_underlying.address, false);
+    // // const pair = await router.pairFor(mim.address, ve_underlying.address, false);
 
     await ve_underlying.approve(gauge_factory.address, ethers.BigNumber.from("500000000000000000000000"));
-    await gauge_factory.createGauge(pair);
+    await gauge_factory.createGauge(pair.address);
     expect(await ve.balanceOfNFT(1)).to.above(ethers.BigNumber.from("995063075414519385"));
     expect(await ve_underlying.balanceOf(ve.address)).to.be.equal(ethers.BigNumber.from("1000000000000000000"));
 
-    await gauge_factory.vote(1, [pair], [5000]);
+    await gauge_factory.vote(1, [pair.address], [5000]);
   });
 
   it("initialize veNFT", async function () {
@@ -109,35 +117,35 @@ describe("minter", function () {
     expect(await ve_dist.claimable(1)).to.equal(0);
 
     const weekly = await minter.weekly();
-    console.log(weekly);
-    console.log(await minter.calculate_growth(weekly));
-    console.log(await ve_underlying.totalSupply());
-    console.log(await ve.totalSupply());
+    // console.log(weekly);
+    // console.log(await minter.calculate_growth(weekly));
+    // console.log(await ve_underlying.totalSupply());
+    // console.log(await ve.totalSupply());
 
     await network.provider.send("evm_increaseTime", [86400 * 7])
     await network.provider.send("evm_mine")
     await minter.update_period();
-    console.log(await ve_dist.claimable(1));
+    // console.log(await ve_dist.claimable(1));
     await ve_dist.claim(1);
     await network.provider.send("evm_increaseTime", [86400 * 7])
     await network.provider.send("evm_mine")
     await minter.update_period();
-    console.log(await ve_dist.claimable(1));
+    // console.log(await ve_dist.claimable(1));
     await ve_dist.claim_many([1]);
     await network.provider.send("evm_increaseTime", [86400 * 7])
     await network.provider.send("evm_mine")
     await minter.update_period();
-    console.log(await ve_dist.claimable(1));
+    // console.log(await ve_dist.claimable(1));
     await ve_dist.claim(1);
     await network.provider.send("evm_increaseTime", [86400 * 7])
     await network.provider.send("evm_mine")
     await minter.update_period();
-    console.log(await ve_dist.claimable(1));
+    // console.log(await ve_dist.claimable(1));
     await ve_dist.claim_many([1]);
     await network.provider.send("evm_increaseTime", [86400 * 7])
     await network.provider.send("evm_mine")
     await minter.update_period();
-    console.log(await ve_dist.claimable(1));
+    // console.log(await ve_dist.claimable(1));
     await ve_dist.claim(1);
   });
 

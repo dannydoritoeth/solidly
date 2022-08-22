@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require("@float-capital/solidity-coverage");
+require('dotenv').config()
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -26,11 +27,16 @@ module.exports = {
         runs: 200,
       },
     },
-  },
+  },  
   networks: {
     hardhat: {
       initialBaseFeePerGas: 0,
     },
+    ganache: {
+      url: "http://127.0.0.1:7545",
+      accounts: [process.env.PRIVATE_KEY_GANACHE],
+      saveDeployments: true,
+    },     
     ftmtest: {
       url: "https://rpc.testnet.fantom.network/",
     }

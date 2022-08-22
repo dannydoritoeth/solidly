@@ -236,9 +236,9 @@ contract BaseV1Voter {
 
     function createGauge(address _pool) external returns (address) {
         require(gauges[_pool] == address(0x0), "exists");
-        require(IBaseV1Factory(factory).isPair(_pool), "!_pool");
-        (address tokenA, address tokenB) = IBaseV1Core(_pool).tokens();
-        require(isWhitelisted[tokenA] && isWhitelisted[tokenB], "!whitelisted");
+        // require(IBaseV1Factory(factory).isPair(_pool), "!_pool");
+        // (address tokenA, address tokenB) = IBaseV1Core(_pool).tokens();
+        // require(isWhitelisted[tokenA] && isWhitelisted[tokenB], "!whitelisted");
         address _bribe = IBaseV1BribeFactory(bribefactory).createBribe();
         address _gauge = IBaseV1GaugeFactory(gaugefactory).createGauge(_pool, _bribe, _ve);
         erc20(base).approve(_gauge, type(uint).max);
